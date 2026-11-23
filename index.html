@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShareSpace — Safe Campus & Community Resource Sharing Platform</title>
+  <meta name="description" content="ShareSpace enables colleges, research laboratories, makerspaces, and communities to safely share high-value underused equipment, studios, and technical facilities with verified eligibility, conflict-free scheduling, and digital condition check-ins.">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%20width=%22100%22%20height=%22100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+</head>
+<body>
+  <div class="app-container">
+
+    <!-- Top Navigation Bar -->
+    <header class="top-navbar" id="top-navbar">
+      <div class="brand-section" onclick="switchTab('browse')">
+        <div class="brand-logo-icon">⚡</div>
+        <div class="brand-info">
+          <h1>ShareSpace <span class="brand-badge">Institutional</span></h1>
+          <span class="brand-tagline">Trusted Campus & Community Resource Network</span>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="nav-tabs" aria-label="Main Navigation">
+        <button class="nav-tab-btn active" data-tab="browse" onclick="switchTab('browse')" id="tab-btn-browse">
+          <span>🔍</span>
+          <span>Browse Resources</span>
+        </button>
+        <button class="nav-tab-btn" data-tab="bookings" onclick="switchTab('bookings')" id="tab-btn-bookings">
+          <span>📅</span>
+          <span>My Bookings</span>
+          <span class="badge-count" id="bookings-tab-badge" style="display:none;">0</span>
+        </button>
+        <button class="nav-tab-btn" data-tab="manage" onclick="switchTab('manage')" id="tab-btn-manage">
+          <span>🛡️</span>
+          <span>Owner Review</span>
+          <span class="badge-count" id="manage-tab-badge" style="display:none;">0</span>
+        </button>
+        <button class="nav-tab-btn" data-tab="incidents" onclick="switchTab('incidents')" id="tab-btn-incidents">
+          <span>⚠️</span>
+          <span>Incident Center</span>
+        </button>
+        <button class="nav-tab-btn" data-tab="audit" onclick="switchTab('audit')" id="tab-btn-audit">
+          <span>📜</span>
+          <span>Audit Trail</span>
+        </button>
+      </nav>
+
+      <!-- User Role Switcher & Action Items -->
+      <div class="nav-actions">
+        <!-- Auth Buttons -->
+        <div class="auth-buttons" id="auth-buttons" style="display:flex; gap:0.4rem; align-items:center;">
+          <button class="btn btn-secondary btn-sm" onclick="openLoginModal()" title="Sign in or switch account">🔑 Login</button>
+          <button class="btn btn-primary btn-sm" onclick="openSignupModal()" title="Register a new campus member">✨ Sign Up</button>
+        </div>
+
+        <!-- Interactive Role Switcher -->
+        <div class="role-switcher-box" title="Switch sample persona to demonstrate different permissions">
+          <div class="role-avatar" id="role-avatar-badge">AR</div>
+          <div class="role-select-wrapper">
+            <label for="role-select-box">Demo Persona</label>
+            <select id="role-select-box" class="role-select" onchange="switchActiveUser(this.value)" aria-label="Select demo persona">
+              <!-- Dynamically populated -->
+            </select>
+          </div>
+        </div>
+
+        <!-- Notification Bell -->
+        <div style="position:relative;">
+          <button class="btn-icon" id="notif-btn" onclick="toggleNotifDropdown()" title="Notifications" aria-label="Open notifications">
+            <span class="notif-dot"></span>
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+          </button>
+
+          <!-- Notification Dropdown Menu -->
+          <div id="notif-dropdown" class="modal-window" style="position:absolute; right:0; top:46px; width:340px; display:none; z-index:100; box-shadow:var(--shadow-lg);">
+            <div class="modal-header" style="padding:0.75rem 1rem;">
+              <h5 style="font-size:0.9rem; font-weight:700;">Activity Notifications</h5>
+              <span style="font-size:0.7rem; color:var(--text-muted);">Real-time alerts</span>
+            </div>
+            <div style="padding:0.5rem; display:flex; flex-direction:column; gap:0.4rem; max-height:300px; overflow-y:auto;">
+              <div style="padding:0.5rem 0.75rem; background:var(--bg-surface-elevated); border-radius:var(--radius-sm); border-left:3px solid var(--emerald); font-size:0.8rem;">
+                <div style="font-weight:700; color:var(--emerald);">Booking Confirmed (#bkg-101)</div>
+                <div style="color:var(--text-secondary); margin-top:2px;">Formlabs Form 3B+ ready for check-in today at 14:00.</div>
+                <div style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">10 mins ago</div>
+              </div>
+              <div style="padding:0.5rem 0.75rem; background:var(--bg-surface-elevated); border-radius:var(--radius-sm); border-left:3px solid var(--amber); font-size:0.8rem;">
+                <div style="font-weight:700; color:var(--amber);">Waitlist Priority Position #1</div>
+                <div style="color:var(--text-secondary); margin-top:2px;">You are next in queue for the Desktop CNC Mill.</div>
+                <div style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">1 hour ago</div>
+              </div>
+              <div style="padding:0.5rem 0.75rem; background:var(--bg-surface-elevated); border-radius:var(--radius-sm); border-left:3px solid var(--cyan); font-size:0.8rem;">
+                <div style="font-weight:700; color:var(--cyan);">Safety Clearance Verified</div>
+                <div style="color:var(--text-secondary); margin-top:2px;">Laser Safety Level 1 certification active through Dec 2026.</div>
+                <div style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">Yesterday</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Light / Dark Theme Toggle -->
+        <button class="btn-icon" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle visual theme" aria-label="Toggle theme">
+          <span id="theme-icon">🌙</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Interactive Fair Use / Active Persona Banner -->
+    <div class="demo-banner" id="demo-status-banner">
+      <!-- Dynamically filled by app.js -->
+    </div>
+
+    <!-- Main Dynamic Workspace View -->
+    <main class="main-wrapper" id="main-content-area" role="main">
+      <!-- Dynamically filled by renderApp() -->
+    </main>
+
+    <!-- Footer -->
+    <footer style="border-top:1px solid var(--border-subtle); padding:1.5rem; text-align:center; font-size:0.8rem; color:var(--text-muted); background:var(--bg-surface);">
+      <div style="display:flex; justify-content:center; align-items:center; gap:1.5rem; flex-wrap:wrap; margin-bottom:0.5rem;">
+        <span>⚡ <strong>ShareSpace</strong> Institutional Resource Governance</span>
+        <span>•</span>
+        <span>Fair-Use Quota Enforcement</span>
+        <span>•</span>
+        <span>Safety Certification Verification</span>
+        <span>•</span>
+        <span>Pre & Post Condition Auditing</span>
+      </div>
+      <div>
+        Designed for University FabLabs, Research Centers, Media Studios & Community Makerspaces.
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- ============================================== -->
+  <!-- MODAL DIALOGS FOR JOURNEY WORKFLOWS           -->
+  <!-- ============================================== -->
+
+  <!-- 1. Booking Request Modal -->
+  <div class="modal-backdrop" id="booking-modal" role="dialog" aria-modal="true" aria-labelledby="modal-booking-title">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-booking-title">
+          <span>📅</span>
+          <span>Submit Resource Booking Request</span>
+        </h3>
+        <button class="modal-close-btn" onclick="closeModal('booking-modal')" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="modal-body" id="booking-modal-body">
+        <!-- Rendered by openBookingModal() -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Pre-Use Check-In Inspection Modal -->
+  <div class="modal-backdrop" id="checkin-modal" role="dialog" aria-modal="true" aria-labelledby="modal-checkin-title">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-checkin-title">
+          <span>📝</span>
+          <span>Pre-Use Inspection & Digital Check-In</span>
+        </h3>
+        <button class="modal-close-btn" onclick="closeModal('checkin-modal')" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="modal-body" id="checkin-modal-body">
+        <!-- Rendered by openCheckInModal() -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Return Check-Out Inspection Modal -->
+  <div class="modal-backdrop" id="checkout-modal" role="dialog" aria-modal="true" aria-labelledby="modal-checkout-title">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-checkout-title">
+          <span>🏁</span>
+          <span>Return Inspection & Sign-Off Check-Out</span>
+        </h3>
+        <button class="modal-close-btn" onclick="closeModal('checkout-modal')" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="modal-body" id="checkout-modal-body">
+        <!-- Rendered by openCheckOutModal() -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Owner Decision Modal (Approve / Reject / Waitlist) -->
+  <div class="modal-backdrop" id="decision-modal" role="dialog" aria-modal="true" aria-labelledby="modal-decision-title">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-decision-title">
+          <span>⚖️</span>
+          <span>Owner Review & Request Decision</span>
+        </h3>
+        <button class="modal-close-btn" onclick="closeModal('decision-modal')" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="modal-body" id="decision-modal-body">
+        <!-- Rendered by openApprovalDecisionModal() -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Report Incident / Damage / Delay Modal -->
+  <div class="modal-backdrop" id="incident-modal" role="dialog" aria-modal="true" aria-labelledby="modal-incident-title">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-incident-title">
+          <span>⚠️</span>
+          <span>File Incident, Damage or Delay Report</span>
+        </h3>
+        <button class="modal-close-btn" onclick="closeModal('incident-modal')" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="modal-body" id="incident-modal-body">
+        <!-- Rendered by openReportIncidentModal() -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Resolve Incident Modal (Admin / Owner) -->
+  <div class="modal-backdrop" id="resolve-modal" role="dialog" aria-modal="true" aria-labelledby="modal-resolve-title">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-resolve-title">
+          <span>⚖️</span>
+          <span>Incident Resolution & Safety Sign-Off</span>
+        </h3>
+        <button class="modal-close-btn" onclick="closeModal('resolve-modal')" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="modal-body" id="resolve-modal-body">
+        <!-- Rendered by openResolveIncidentModal() -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. Create Resource Listing Modal -->
+  <div class="modal-backdrop" id="listing-modal" role="dialog" aria-modal="true" aria-labelledby="modal-listing-title">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-listing-title">
+          <span>➕</span>
+          <span>List a Space, Tool, or Technical Resource</span>
+        </h3>
+        <button class="modal-close-btn" onclick="closeModal('listing-modal')" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="modal-body" id="listing-modal-body">
+        <!-- Rendered by openCreateResourceModal() -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. Booking Audit History Modal -->
+  <div class="modal-backdrop" id="history-modal" role="dialog" aria-modal="true" aria-labelledby="modal-history-title">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-history-title">
+          <span>📜</span>
+          <span>Full Booking Lifecycle & Audit Trail</span>
+        </h3>
+        <button class="modal-close-btn" onclick="closeModal('history-modal')" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="modal-body" id="history-modal-body">
+        <!-- Rendered by openBookingHistoryModal() -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. User Certifications Modal -->
+  <div class="modal-backdrop" id="certs-modal" role="dialog" aria-modal="true" aria-labelledby="modal-certs-title">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-certs-title">
+          <span>📜</span>
+          <span>Verified Safety Certifications</span>
+        </h3>
+        <button class="modal-close-btn" onclick="closeModal('certs-modal')" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="modal-body" id="certs-modal-body">
+        <!-- Rendered by openCertificationsModal() -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 10. Login Modal -->
+  <div class="modal-backdrop" id="login-modal" role="dialog" aria-modal="true" aria-labelledby="modal-login-title">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-login-title">
+          <span>🔑</span>
+          <span>Campus Single Sign-On & Account Login</span>
+        </h3>
+        <button class="modal-close-btn" onclick="closeModal('login-modal')" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="modal-body" id="login-modal-body">
+        <!-- Rendered by openLoginModal() -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 11. Sign Up Modal -->
+  <div class="modal-backdrop" id="signup-modal" role="dialog" aria-modal="true" aria-labelledby="modal-signup-title">
+    <div class="modal-window" style="max-width:580px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-signup-title">
+          <span>✨</span>
+          <span>Register Verified Campus Account</span>
+        </h3>
+        <button class="modal-close-btn" onclick="closeModal('signup-modal')" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="modal-body" id="signup-modal-body">
+        <!-- Rendered by openSignupModal() -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Global Toast Shelf for Feedback -->
+  <div class="toast-shelf" id="toast-shelf" aria-live="polite"></div>
+
+  <!-- Scripts -->
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+  <script>
+    // Theme Switcher Logic
+    function toggleTheme() {
+      const html = document.documentElement;
+      const current = html.getAttribute("data-theme");
+      const next = current === "dark" ? "light" : "dark";
+      html.setAttribute("data-theme", next);
+      document.getElementById("theme-icon").textContent = next === "dark" ? "🌙" : "☀️";
+      localStorage.setItem("sharespace_theme", next);
+    }
+    // Initialize saved theme
+    const savedTheme = localStorage.getItem("sharespace_theme") || "dark";
+    document.documentElement.setAttribute("data-theme", savedTheme);
+    const themeIcon = document.getElementById("theme-icon");
+    if (themeIcon) themeIcon.textContent = savedTheme === "dark" ? "🌙" : "☀️";
+
+    // Toggle dropdown helper
+    function toggleNotifDropdown() {
+      const dd = document.getElementById("notif-dropdown");
+      if (dd) {
+        dd.style.display = dd.style.display === "block" ? "none" : "block";
+      }
+    }
+  </script>
+</body>
+</html>
